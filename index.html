@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声ファイル圧縮ツール</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <!-- COI ServiceWorker for SharedArrayBuffer support -->
+    <!-- Cross-Origin Isolationを有効にするため、COI ServiceWorkerを使用 -->
+    <script>
+        // COI ServiceWorkerを読み込んで、Cross-Origin Isolationを有効化
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            // COI ServiceWorkerを動的に読み込む
+            const coiScript = document.createElement('script');
+            coiScript.src = 'https://cdn.jsdelivr.net/npm/coi-serviceworker@0.1.11/coi-serviceworker.min.js';
+            coiScript.onload = () => {
+                console.log('COI ServiceWorker loaded');
+                // SharedArrayBufferが利用可能かチェック
+                setTimeout(() => {
+                    if (typeof SharedArrayBuffer === 'undefined') {
+                        console.warn('SharedArrayBuffer is not available. Cross-Origin Isolation may not be enabled.');
+                    } else {
+                        console.log('SharedArrayBuffer is available. Cross-Origin Isolation is enabled.');
+                    }
+                }, 1000);
+            };
+            coiScript.onerror = () => {
+                console.error('Failed to load COI ServiceWorker');
+            };
+            document.head.appendChild(coiScript);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 音声ファイル圧縮ツール</h1>
+            <p class="subtitle">100MB以上の音声ファイルを自動的に圧縮します</p>
+        </header>
+
+        <main>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="upload-text">ファイルをドラッグ&ドロップ</p>
+                    <p class="upload-subtext">または</p>
+                    <button class="btn btn-primary" id="fileSelectBtn">ファイルを選択</button>
+                    <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                </div>
+            </div>
+
+            <div class="file-info" id="fileInfo" style="display: none;">
+                <h3>選択されたファイル</h3>
+                <div class="info-item">
+                    <span class="info-label">ファイル名:</span>
+                    <span class="info-value" id="fileName"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ファイルサイズ:</span>
+                    <span class="info-value" id="fileSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ファイルタイプ:</span>
+                    <span class="info-value" id="fileType"></span>
+                </div>
+            </div>
+
+            <div class="message" id="message" style="display: none;"></div>
+            
+            <div class="warning-box" id="warningBox" style="display: none;">
+                <strong>⚠️ 注意:</strong>
+                <p>このツールは音声ファイルを圧縮します。圧縮により音質が低下する可能性があります。</p>
+                <p>処理中はブラウザを閉じないでください。大きなファイルの処理には時間がかかる場合があります。</p>
+            </div>
+
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">処理中...</p>
+            </div>
+
+            <div class="result-container" id="resultContainer" style="display: none;">
+                <h3>圧縮完了</h3>
+                <p class="result-message" id="resultMessage"></p>
+                
+                <div class="file-info" style="margin-top: 15px;">
+                    <div class="info-item">
+                        <span class="info-label">元のサイズ:</span>
+                        <span class="info-value" id="originalSize"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">圧縮後のサイズ:</span>
+                        <span class="info-value" id="compressedSize"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">圧縮率:</span>
+                        <span class="info-value" id="compressionRatio"></span>
+                    </div>
+                </div>
+                
+                <div class="download-section">
+                    <button class="btn btn-download-main" id="downloadBtn">ダウンロード</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ffmpeg.wasm (jsDelivr CDN経由) -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.min.js"></script>
+    <script src="script.js?v=3"></script>
+</body>
+</html>
+
